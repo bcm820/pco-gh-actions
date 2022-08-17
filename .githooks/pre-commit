@@ -1,0 +1,9 @@
+#!/bin/bash
+
+git submodule update --init --remote
+
+DIRTY=$(git diff -- src)
+if [ "$DIRTY" != "" ]; then
+    echo "unable to commit with existing submodule changes; stage and try again"
+    exit 1
+fi

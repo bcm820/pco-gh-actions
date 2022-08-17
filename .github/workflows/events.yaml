@@ -1,0 +1,28 @@
+name: Events
+
+on:
+  schedule:
+    # Every day at midnight
+    - cron: "0 0 * * *"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    container:
+      image: python
+      env:
+        GCLOUD_SECRET: ${{ secrets.GCLOUD_SECRET }}
+        PCO_APP_ID: ${{ secrets.PCO_APP_ID }}
+        PCO_SECRET: ${{ secrets.PCO_SECRET }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          token: ${{ secrets.GH_TOKEN }}
+      - name: Init libraries
+        run: cd src && ./run init events
+      - name: Copy GCloud config
+        run: echo $GCLOUD_SECRET | base64 -d > src/events/google_client_credentials.json
+      - name: Run command
+        run: cd src && ./run cmd events
