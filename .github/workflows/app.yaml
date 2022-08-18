@@ -1,0 +1,41 @@
+name: App
+
+on:
+  workflow_call:
+    inputs:
+      app:
+        required: true
+        type: string
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    environment: runner
+
+    env:
+      GCLOUD_SECRET: ${{ secrets.GCLOUD_SECRET }}
+      PCO_APP_ID: ${{ secrets.PCO_APP_ID }}
+      PCO_SECRET: ${{ secrets.PCO_SECRET }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Copy GCloud config
+        run: echo $GCLOUD_SECRET | base64 -d > src/${{ inputs.app }}/google_client_credentials.json
+
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('src/${{ inputs.app }}/Pipfile.lock') }}
+
+      - name: Install or check cached dependencies
+        run: cd src && ./run init ${{ inputs.app }}
+
+      - name: Run command
+        run: cd src && ./run cmd ${{ inputs.app }}

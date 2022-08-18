@@ -1,0 +1,17 @@
+name: Main
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  groups:
+    uses: bcmendoza/pco-gh-actions/.github/workflows/app.yaml@testrun
+    with:
+      app: groups
+    secrets: inherit
+  events:
+    uses: bcmendoza/pco-gh-actions/.github/workflows/app.yaml@testrun
+    with:
+      app: events
+    secrets: inherit
