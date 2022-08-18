@@ -6,16 +6,14 @@ on:
       app:
         required: true
         type: string
+      gcloud:
+        required: false
+        type: boolean
 
 jobs:
   run:
     runs-on: ubuntu-latest
     environment: runner
-
-    env:
-      GCLOUD_SECRET: ${{ secrets.GCLOUD_SECRET }}
-      PCO_APP_ID: ${{ secrets.PCO_APP_ID }}
-      PCO_SECRET: ${{ secrets.PCO_SECRET }}
 
     steps:
       - name: Checkout code
@@ -25,17 +23,36 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Copy GCloud config
+        if: ${{ inputs.gcloud }}
         run: echo $GCLOUD_SECRET | base64 -d > src/${{ inputs.app }}/google_client_credentials.json
+        shell: bash
+        env:
+          GCLOUD_SECRET: ${{ secrets.GCLOUD_SECRET }}
 
-      - name: Cache dependencies
-        id: cache
-        uses: actions/cache@v3
+      - name: Evaluate whether to fetch input data
+        id: eval
+        run: echo "::set-output name=check::$(./scripts/check.sh)"
+        env:
+          APP: ${{ inputs.app }}
+
+      - name: Fetch input data
+        id: fetch
+        if: ${{ steps.eval.outputs.check == 'true' }}
+        run: echo "::set-output name=check::$(./src/${{ inputs.app }}/scripts/fetch.sh)"
+        env:
+          PCO_APP_ID: ${{ secrets.PCO_APP_ID }}
+          PCO_SECRET: ${{ secrets.PCO_SECRET }}
+          PCO_CONNECT_ENDPOINT: ${{ secrets.PCO_CONNECT_ENDPOINT }} # how to abstract?
+
+      - name: Build and run
+        if: ${{ steps.eval.outputs.check == 'false' || steps.fetch.outputs.check == 'true' }}
+        uses: bcmendoza/pco-gh-actions/.github/actions/run@main
         with:
-          path: /home/runner/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('src/${{ inputs.app }}/Pipfile.lock') }}
-
-      - name: Install or check cached dependencies
-        run: cd src && ./run init ${{ inputs.app }}
-
-      - name: Run command
-        run: cd src && ./run cmd ${{ inputs.app }}
+          app: ${{ inputs.app }}
+        env:
+          PCO_APP_ID: ${{ secrets.PCO_APP_ID }}
+          PCO_SECRET: ${{ secrets.PCO_SECRET }}
+          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
+          TRELLO_API_SECRET: ${{ secrets.TRELLO_API_SECRET }}
+          TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
+          TRELLO_TOKEN_SECRET: ${{ secrets.TRELLO_TOKEN_SECRET }}

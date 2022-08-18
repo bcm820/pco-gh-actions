@@ -1,0 +1,24 @@
+name: Run
+description: Local run action
+
+inputs:
+  app:
+    description: App name
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: /home/runner/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('src/${{ inputs.app }}/Pipfile.lock') }}
+
+    - name: Install or check cached dependencies
+      run: cd src && ./run ${{ inputs.app }} init
+      shell: bash
+
+    - name: Run command
+      run: cd src && ./run ${{ inputs.app }} cmd
+      shell: bash

@@ -6,12 +6,19 @@ on:
 
 jobs:
   groups:
-    uses: bcmendoza/pco-gh-actions/.github/workflows/app.yaml@testrun
+    uses: bcmendoza/pco-gh-actions/.github/workflows/app.yaml@main
+    secrets: inherit
     with:
       app: groups
-    secrets: inherit
+      gcloud: true
   events:
-    uses: bcmendoza/pco-gh-actions/.github/workflows/app.yaml@testrun
+    uses: bcmendoza/pco-gh-actions/.github/workflows/app.yaml@main
+    secrets: inherit
     with:
       app: events
+      gcloud: true
+  connections:
+    uses: bcmendoza/pco-gh-actions/.github/workflows/app.yaml@main
     secrets: inherit
+    with:
+      app: connections
