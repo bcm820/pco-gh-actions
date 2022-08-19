@@ -24,7 +24,7 @@ jobs:
 
       - name: Copy GCloud config
         if: ${{ inputs.gcloud }}
-        run: echo $GCLOUD_SECRET | base64 -d > src/${{ inputs.app }}/google_client_credentials.json
+        run: echo $GCLOUD_SECRET | base64 -d > src/${{ inputs.app }}/${{ secrets.GCLOUD_CONFIG_FILE }}
         shell: bash
         env:
           GCLOUD_SECRET: ${{ secrets.GCLOUD_SECRET }}
