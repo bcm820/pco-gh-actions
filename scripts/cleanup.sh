@@ -10,7 +10,7 @@ fi
 date >> log
 
 git add log
-git commit -m "Cleaup"
+git commit -m "Cleanup"
 git push --set-upstream origin cleanup --force
 
 git checkout main
