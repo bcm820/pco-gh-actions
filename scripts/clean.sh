@@ -9,7 +9,7 @@ fi
 
 date >> log
 
-git add log
+git add .
 git commit -m "Cleaup"
 git push
 
