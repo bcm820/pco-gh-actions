@@ -1,9 +1,7 @@
 name: Cleanup
 
 on:
-  push:
-    branches:
-      - cleanup
+  workflow_dispatch: {}
 
 jobs:
   purge-workflows:
