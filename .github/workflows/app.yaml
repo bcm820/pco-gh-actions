@@ -31,21 +31,21 @@ jobs:
 
       - name: Evaluate whether to fetch input data
         id: eval
-        run: echo "FETCH=$(./scripts/check.sh)" >> $GITHUB_OUTPUT
+        run: echo "fetch=$(./scripts/check.sh)" >> $GITHUB_OUTPUT
         env:
           APP: ${{ inputs.app }}
 
       - name: Fetch input data
         id: fetch
-        if: ${{ $FETCH == 'true' }}
-        run: echo "FETCHED=$(./src/${{ inputs.app }}/scripts/fetch.sh)" >> $GITHUB_OUTPUT
+        if: ${{ steps.eval.outputs.fetch == 'true' }}
+        run: echo "fetched=$(./src/${{ inputs.app }}/scripts/fetch.sh)" >> $GITHUB_OUTPUT
         env:
           PCO_APP_ID: ${{ secrets.PCO_APP_ID }}
           PCO_SECRET: ${{ secrets.PCO_SECRET }}
           PCO_CONNECT_ENDPOINT: ${{ secrets.PCO_CONNECT_ENDPOINT }} # how to abstract?
 
       - name: Build and run
-        if: ${{ $FETCH == 'false' || $FETCHED == 'true' }}
+        if: ${{ steps.eval.outputs.fetch == 'false' || steps.fetch.outputs.fetched == 'true' }}
         uses: bcmendoza/pco-gh-actions/.github/actions/run@main
         with:
           app: ${{ inputs.app }}
