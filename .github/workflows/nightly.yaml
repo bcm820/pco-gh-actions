@@ -6,12 +6,12 @@ on:
   workflow_dispatch: {}
 
 jobs:
-#   groups:
-#     uses: bcmendoza/pco-gh-actions/.github/workflows/app.yaml@main
-#     secrets: inherit
-#     with:
-#       app: groups
-#       gcloud: true
+  groups:
+    uses: bcmendoza/pco-gh-actions/.github/workflows/app.yaml@main
+      secrets: inherit
+      with:
+        app: groups
+        gcloud: true
   events:
     uses: bcmendoza/pco-gh-actions/.github/workflows/app.yaml@main
     secrets: inherit
